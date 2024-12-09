@@ -15,7 +15,7 @@ fn can_achieve_target(target: &i64, nums: &Vec<i64>) -> bool {
 
         queue.push_front((next.0 + nums[next.1], next.1+1));
         queue.push_front((next.0 * nums[next.1], next.1+1));
-        queue.push_front((format!("{}{}",next.0,nums[next.1]).parse().unwrap(), next.1+1)); // this line only for part 2
+        // queue.push_front((format!("{}{}",next.0,nums[next.1]).parse().unwrap(), next.1+1)); 
     }
 
     false
@@ -50,10 +50,10 @@ fn solution(filepath: &str) -> i64 {
 }
 
 fn main() {
-    // remove last line in can_achieve_target() for part 1 to work
     assert_eq!(solution("src/day7/test.txt"), 3749);
     println!("Part1 result: {}", solution("src/day7/input.txt"));
 
+    // uncomment commented line in can_achieve_target() for part 2 to work
     assert_eq!(solution("src/day7/test.txt"), 11387);
     println!("Part2 result: {}", solution("src/day7/input.txt"));
 }
