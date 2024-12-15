@@ -42,32 +42,6 @@ int dfs(int n, int m, std::vector<std::string>& grid, Pos curr) {
     return visited.size();
 }
 
-int loops(int n, int m, std::vector<std::string>& grid, Pos curr) {
-    Dir dir = UP; 
-    int loops = 0; 
-    std::set<Pos> visited = {curr};
-
-    while (true) {
-        grid[curr.first][curr.second] = 'X';
-        Pos next = curr + dirs[dir];
-        if (!in_bounds(next,n,m)) 
-            break;
-
-        if (grid[next.first][next.second] == '#') {
-            dir = right_turns[dir];
-            curr = curr + dirs[dir];
-        }
-        else 
-            curr = next;
-        
-        if (visited.find(curr) != visited.end())
-            loops++;
-        visited.insert(curr);
-    }
-
-    return loops;
-}
-
 int part1(const std::string& filename) {
     std::ifstream in(filename);
     std::vector<std::string> grid;
@@ -90,6 +64,33 @@ int part1(const std::string& filename) {
     return res;
 }
 
+std::ostream& operator<<(std::ostream& os, Pos p) {
+    os << "(" << p.first << "," << p.second << ")";
+    return os;
+}
+
+bool findLoop(int n, int m, std::vector<std::string>& grid, Pos curr) {
+    Dir dir = UP; 
+    std::set<std::pair<Pos,Dir>> visited = {{curr,dir}};
+
+    while (true) {
+        auto next = curr + dirs[dir];
+        if (!in_bounds(next,n,m)) return false;
+
+        while (grid[next.first][next.second] == '#') {
+            dir = right_turns[dir];
+            next = curr + dirs[dir];
+            if (!in_bounds(next,n,m)) return false;
+        }
+        if (visited.count({next,dir})) return true;
+
+        curr = next;
+        visited.insert({next,dir});
+    }
+
+    return false;
+}
+
 int part2(const std::string& filename) {
     std::ifstream in(filename);
     std::vector<std::string> grid;
@@ -109,10 +110,15 @@ int part2(const std::string& filename) {
 
     int res = 0;
 
-    /**
-     * 1) Find intersection points
-     * 2) For each intersection point, simulate paths
-     */
+    for (int i = 0; i < grid.size(); ++i) {
+        for (int j = 0; j < grid[0].size(); ++j) {
+            if (grid[i][j] == '.') {
+                grid[i][j] = '#';
+                if (findLoop(grid.size(),grid[0].size(),grid,start)) res++;
+                grid[i][j] = '.';
+            }
+        }
+    }
 
     return res;
 }
@@ -121,7 +127,8 @@ int main(void) {
     CASE(part1("test.txt"), 41);
     std::cout << "Part 1: " << part1("input.txt") << std::endl;
 
-    CASE(part2("test.txt"),6);
+    CASE(part2("test.txt"), 6);
+    std::cout << "Part 2: " << part2("input.txt") << std::endl;
 
     return 0;
 }
